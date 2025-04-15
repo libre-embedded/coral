@@ -65,7 +65,7 @@ jobs:
       - run: mk c keep=debug
       - run: mk t variant=debug
 
-      - uses: codecov/codecov-action@v3.1.5
+      - uses: codecov/codecov-action@v5
         with:
           gcov: true
           gcov_include: build/debug
@@ -74,6 +74,7 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           token: ${{secrets.CODECOV_TOKEN}}
+          slug: libre-embedded/coral
 
       - run: mk release
         if: |
