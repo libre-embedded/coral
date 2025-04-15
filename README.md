@@ -1,15 +1,15 @@
 <!--
     =====================================
     generator=datazen
-    version=3.1.4
-    hash=af2ae2b7b738e4aae9a17aedfb841ca0
+    version=3.2.1
+    hash=de780fc194a2119ba70d4006fd78c8ac
     =====================================
 -->
 
-# coral ([0.4.3](https://github.com/vkottler/coral/releases/tag/0.4.3))
+# coral ([0.4.4](https://github.com/libre-embedded/coral/releases/tag/0.4.4))
 
-[![codecov](https://codecov.io/gh/vkottler/coral/branch/master/graph/badge.svg)](https://codecov.io/gh/vkottler/coral)
-![Build Status](https://github.com/vkottler/coral/actions/workflows/yambs-project.yml/badge.svg)
+[![codecov](https://codecov.io/gh/libre-embedded/coral/branch/master/graph/badge.svg)](https://codecov.io/gh/libre-embedded/coral)
+![Build Status](https://github.com/libre-embedded/coral/actions/workflows/yambs-project.yml/badge.svg)
 
 *Core C++ project utilities.*
 
@@ -24,7 +24,7 @@
 
 ## Workflow
 
-Install [vmklib](https://github.com/vkottler/vmklib) such that you can
+Install [vmklib](https://github.com/libre-embedded/vmklib) such that you can
 `mk --version` (a `pip install vmklib` to your desired Python environment is
 all that's needed).
 
@@ -42,11 +42,11 @@ This should result in fully compiled code that you can now use or add to.
 ### Generating Interfaces
 
 Structs and enumerations can be defined for
-[ifgen](https://github.com/vkottler/ifgen) which can then generate C++ source
+[ifgen](https://github.com/libre-embedded/ifgen) which can then generate C++ source
 code into the project.
 
 Generating configurations based on an
-[SVD](https://github.com/vkottler/ifgen/tree/master/ifgen/data/svd) file:
+[SVD](https://github.com/libre-embedded/ifgen/tree/master/ifgen/data/svd) file:
 
 ```
 mk ifgen-svd-XMC4700
