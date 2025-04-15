@@ -58,7 +58,7 @@ jobs:
 
       - run: mk t variant=clang coverage=false
       - run: ninja all format-check
-      - run: mk dist docs
+      - run: mk dist
         if: github.ref_name != 'master'
 
       # Need to clean because codecov is not finding coverage otherwise.

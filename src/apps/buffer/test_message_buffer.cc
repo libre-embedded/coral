@@ -5,11 +5,54 @@
 /* internal */
 #include "buffer/MessageBuffer.h"
 
+/* toolchain */
+#include <iostream>
+#include <stdfloat>
+
 static constexpr std::size_t buffer_size = 256;
+
+using CircBuffer = Coral::CircularBuffer<buffer_size>;
+
+template <typename T, std::endian endianness = std::endian::native>
+void loopback_test(CircBuffer circ_buf, T value)
+{
+    circ_buf.write<T, endianness>(value);
+    std::cout << "wrote: '" << value << "'" << std::endl;
+    T compare = circ_buf.read<T, endianness>();
+    std::cout << "read:  '" << compare << "'" << std::endl;
+    assert(compare == value);
+}
 
 int main(void)
 {
     using namespace Coral;
+
+    CircBuffer circ_buf;
+    loopback_test<int8_t>(circ_buf, -5);
+    loopback_test<int8_t, std::endian::big>(circ_buf, -6);
+    loopback_test<int8_t, std::endian::little>(circ_buf, -7);
+
+    loopback_test<uint16_t>(circ_buf, 1000);
+    loopback_test<uint16_t, std::endian::big>(circ_buf, 3000);
+    loopback_test<uint16_t, std::endian::little>(circ_buf, 2000);
+
+    loopback_test<float>(circ_buf, 1.0f);
+    loopback_test<float, std::endian::big>(circ_buf, -2.0f);
+    loopback_test<float, std::endian::little>(circ_buf, 3.0f);
+#if __STDCPP_FLOAT32_T__ == 1
+    loopback_test<std::float32_t>(circ_buf, 1.0f32);
+    loopback_test<std::float32_t, std::endian::big>(circ_buf, -2.0f32);
+    loopback_test<std::float32_t, std::endian::little>(circ_buf, 3.0f32);
+#endif
+
+    loopback_test<double>(circ_buf, -1.0);
+    loopback_test<double, std::endian::big>(circ_buf, -2.0);
+    loopback_test<double, std::endian::little>(circ_buf, -3.0);
+#if __STDCPP_FLOAT64_T__ == 1
+    loopback_test<std::float64_t>(circ_buf, -1.0f64);
+    loopback_test<std::float64_t, std::endian::big>(circ_buf, -2.0f64);
+    loopback_test<std::float64_t, std::endian::little>(circ_buf, -3.0f64);
+#endif
 
     MessageBuffer<buffer_size, 4, char> msg_buf;
     std::array<char, buffer_size> buf = {};

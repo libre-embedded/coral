@@ -7,11 +7,11 @@
 /* toolchain */
 #include <array>
 #include <cassert>
-#include <cstdint>
 #include <cstring>
 
 /* internal */
 #include "../generated/structs/BufferState.h"
+#include "../io/endian.h"
 
 namespace Coral
 {
@@ -29,6 +29,38 @@ class CircularBuffer
     inline std::size_t write_index(void)
     {
         return state.write_cursor % depth;
+    }
+
+    template <byte_size T, std::endian endianness = std::endian::native>
+    inline void write(T elem)
+    {
+        (void)endianness;
+        write_single(element_t(elem));
+    }
+
+    template <typename T, std::endian endianness = std::endian::native>
+    inline void write(T elem)
+        requires byte_size<element_t> && (not byte_size<T>)
+    {
+        handle_endian<T, endianness>(elem);
+        write_n((const element_t *)&elem, sizeof(T));
+    }
+
+    template <byte_size T, std::endian endianness = std::endian::native>
+    inline T read(void)
+    {
+        (void)endianness;
+        return T(read_single());
+    }
+
+    template <typename T, std::endian endianness = std::endian::native>
+    inline T read(void)
+        requires byte_size<element_t> && (not byte_size<T>)
+    {
+        T result = 0;
+        read_n((element_t *)&result, sizeof(T));
+        handle_endian<T, endianness>(result);
+        return result;
     }
 
     inline void write_single(const element_t elem)
@@ -83,6 +115,13 @@ class CircularBuffer
         state.read_cursor++;
 
         state.read_count++;
+    }
+
+    inline element_t read_single(void)
+    {
+        element_t elem;
+        read_single(elem);
+        return elem;
     }
 
     inline void read_n(element_t *elem_array, std::size_t count)
