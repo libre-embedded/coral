@@ -16,12 +16,6 @@
 namespace Coral
 {
 
-template <typename T>
-concept ifgen_struct = requires {
-    typename T::id;
-    typename T::size;
-};
-
 template <std::size_t depth, typename element_t = std::byte>
 class CircularBuffer
 {
@@ -80,13 +74,11 @@ class CircularBuffer
     }
 
     template <ifgen_struct T, std::endian endianness = std::endian::native>
-    inline T read(void)
+    inline void read(T *elem)
         requires byte_size<element_t>
     {
-        T result = T();
-        read_n(reinterpret_cast<element_t *>(result.raw()), T::size);
-        result.template decode<endianness>(result.raw_ro());
-        return result;
+        read_n(reinterpret_cast<element_t *>(elem->raw()), T::size);
+        elem->template endian<endianness>();
     }
 
     inline void write_single(const element_t elem)

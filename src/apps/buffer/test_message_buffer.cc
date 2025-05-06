@@ -14,7 +14,7 @@ static constexpr std::size_t buffer_size = 256;
 using CircBuffer = Coral::CircularBuffer<buffer_size>;
 
 template <typename T, std::endian endianness = std::endian::native>
-void loopback_test(CircBuffer circ_buf, T value)
+void loopback_test(CircBuffer &circ_buf, T value)
 {
     circ_buf.write<T, endianness>(value);
     std::cout << "wrote: '" << value << "'" << std::endl;
@@ -34,6 +34,24 @@ inline std::ostream &operator<<(std::ostream &stream, TestEnum instance)
 {
     stream << std::to_underlying(instance);
     return stream;
+}
+
+template <std::endian endianness = std::endian::native>
+void struct_test(CircBuffer &circ_buf)
+{
+    Coral::BufferState state1 = {};
+    state1.write_cursor = 256;
+    state1.read_cursor = 65536;
+    state1.read_count = 3;
+    state1.write_count = 4;
+    circ_buf.write<Coral::BufferState, endianness>(&state1);
+
+    Coral::BufferState state2 = {};
+    circ_buf.read<Coral::BufferState, endianness>(&state2);
+    assert(state2.write_cursor == 256);
+    assert(state2.read_cursor == 65536);
+    assert(state2.read_count == 3);
+    assert(state2.write_count == 4);
 }
 
 int main(void)
@@ -78,6 +96,10 @@ int main(void)
     loopback_test<std::float64_t, std::endian::big>(circ_buf, -2.0f64);
     loopback_test<std::float64_t, std::endian::little>(circ_buf, -3.0f64);
 #endif
+
+    struct_test<>(circ_buf);
+    struct_test<std::endian::big>(circ_buf);
+    struct_test<std::endian::little>(circ_buf);
 
     MessageBuffer<buffer_size, 4, char> msg_buf;
     std::array<char, buffer_size> buf = {};

@@ -34,11 +34,8 @@ class MessageBuffer : protected CircularBuffer<depth, element_t>
 
         if (result)
         {
-            message_sizes.write_single(len);
             this->write_n(data, len);
-
-            num_messages++;
-            data_size += len;
+            add_message(len);
         }
 
         return ToResult(result);
@@ -50,11 +47,8 @@ class MessageBuffer : protected CircularBuffer<depth, element_t>
 
         if (result)
         {
-            message_sizes.read_single(len);
+            len = remove_message();
             this->read_n(data, len);
-
-            num_messages--;
-            data_size -= len;
         }
 
         return ToResult(result);
@@ -69,6 +63,21 @@ class MessageBuffer : protected CircularBuffer<depth, element_t>
     CircularBuffer<max_messages, std::size_t> message_sizes;
     std::size_t num_messages;
     std::size_t data_size;
+
+    inline void add_message(std::size_t len)
+    {
+        message_sizes.write_single(len);
+        num_messages++;
+        data_size += len;
+    }
+
+    inline auto remove_message(void)
+    {
+        auto len = message_sizes.read_single();
+        num_messages--;
+        data_size -= len;
+        return len;
+    }
 };
 
 } // namespace Coral
