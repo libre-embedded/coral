@@ -36,7 +36,7 @@ jobs:
           python-version: ${{matrix.python-version}}
           cache: pip
 
-      - run: pip${{matrix.python-version}} install vmklib>=1.8.0 yambs
+      - run: pip${{matrix.python-version}} install vmklib>=1.8.0 yambs ifgen>=4.2.2
 
       - run: mk dz-sync
 
@@ -58,7 +58,7 @@ jobs:
 
       - run: mk t variant=clang coverage=false
       - run: ninja all format-check
-      - run: mk dist docs
+      - run: mk dist
         if: github.ref_name != 'master'
 
       # Need to clean because codecov is not finding coverage otherwise.
@@ -67,7 +67,6 @@ jobs:
 
       - uses: codecov/codecov-action@v5
         with:
-          gcov: true
           gcov_include: build/debug
           gcov_ignore: .mypy_cache
           gcov_executable: gcov-13
