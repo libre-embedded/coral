@@ -26,41 +26,37 @@ class CircularBuffer
     {
     }
 
-    inline std::size_t write_index(void)
-    {
-        return state.write_cursor % depth;
-    }
-
     template <byte_size T, std::endian endianness = std::endian::native>
-    inline void write(T elem)
+    inline std::size_t write(T elem)
         requires byte_size<element_t>
     {
-        (void)endianness;
-        write_single(static_cast<element_t>(elem));
+        return write_single(static_cast<element_t>(elem));
     }
 
     template <typename T, std::endian endianness = std::endian::native>
-    inline void write(T elem)
+    inline std::size_t write(T elem)
         requires byte_size<element_t> && (not byte_size<T>)
     {
+        /* Parameter passed by value can be directly swapped. */
         elem = handle_endian<T, endianness>(elem);
-        write_n(reinterpret_cast<const element_t *>(&elem), sizeof(T));
+        return write_n(reinterpret_cast<const element_t *>(&elem), sizeof(T));
     }
 
     template <ifgen_struct T, std::endian endianness = std::endian::native>
-    inline void write(const T *elem)
+    inline std::size_t write(const T *elem)
         requires byte_size<element_t>
     {
+        /* Use a stack instance/copy for byte swapping. */
         T temp = T();
         temp.template decode<endianness>(elem->raw_ro());
-        write_n(reinterpret_cast<const element_t *>(temp.raw_ro()), T::size);
+        return write_n(reinterpret_cast<const element_t *>(temp.raw_ro()),
+                       T::size);
     }
 
     template <byte_size T, std::endian endianness = std::endian::native>
     inline T read(void)
         requires byte_size<element_t>
     {
-        (void)endianness;
         return static_cast<T>(read_single());
     }
 
@@ -81,15 +77,16 @@ class CircularBuffer
         elem->template endian<endianness>();
     }
 
-    inline void write_single(const element_t elem)
+    inline std::size_t write_single(const element_t elem)
     {
         buffer[write_index()] = elem;
         state.write_cursor++;
 
         state.write_count++;
+        return 1;
     }
 
-    inline void write_n(const element_t *elem_array, std::size_t count)
+    inline std::size_t write_n(const element_t *elem_array, std::size_t count)
     {
         std::size_t max_contiguous;
         std::size_t to_write;
@@ -115,11 +112,8 @@ class CircularBuffer
 
             state.write_count += to_write;
         }
-    }
 
-    inline std::size_t read_index(void)
-    {
-        return state.read_cursor % depth;
+        return count;
     }
 
     inline element_t peek(void)
@@ -173,22 +167,52 @@ class CircularBuffer
         }
     }
 
-    void poll_metrics(uint32_t &_read_count, uint32_t &_write_count,
-                      bool reset = true)
+    inline void poll_metrics(uint32_t &_read_count, uint32_t &_write_count,
+                             bool reset = true)
     {
-        _read_count = state.read_count;
-        _write_count = state.write_count;
+        _read_count = read_count(reset);
+        _write_count = write_count(reset);
+    }
+
+    inline uint32_t write_count(bool reset = true)
+    {
+        auto result = state.write_count;
+        if (reset)
+        {
+            state.write_count = 0;
+        }
+        return result;
+    }
+
+    inline uint32_t read_count(bool reset = true)
+    {
+        auto result = state.read_count;
         if (reset)
         {
             state.read_count = 0;
-            state.write_count = 0;
         }
+        return result;
+    }
+
+    inline void reset(void)
+    {
+        state = {};
     }
 
   protected:
     std::array<element_t, depth> buffer;
 
     BufferState state;
+
+    inline std::size_t write_index(void)
+    {
+        return state.write_cursor % depth;
+    }
+
+    inline std::size_t read_index(void)
+    {
+        return state.read_cursor % depth;
+    }
 };
 
 }; // namespace Coral

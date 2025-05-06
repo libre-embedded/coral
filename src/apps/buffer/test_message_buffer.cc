@@ -114,5 +114,30 @@ int main(void)
     assert(msg_buf.get_message(buf.data(), len));
     assert(not msg_buf.get_message(buf.data(), len));
 
+    {
+        auto ctx = msg_buf.context();
+        msg_buf.write<char>('h');
+        msg_buf.write<char>('e');
+        msg_buf.write<char>('l');
+        msg_buf.write<char>('l');
+        msg_buf.write<char>('o');
+        msg_buf.write<char>('\0');
+    }
+
+    assert(msg_buf.get_message(buf.data(), len));
+
+    /* Verify message. */
+    assert(std::strcmp(buf.data(), "hello") == 0);
+
+    assert(not msg_buf.get_message(buf.data(), len));
+
+    {
+        auto ctx = msg_buf.context();
+        msg_buf.write_n(buf.data(), buf.size());
+        msg_buf.write_n(buf.data(), buf.size());
+    }
+
+    assert(not msg_buf.get_message(buf.data(), len));
+
     return 0;
 }
