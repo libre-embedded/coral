@@ -23,6 +23,19 @@ void loopback_test(CircBuffer circ_buf, T value)
     assert(compare == value);
 }
 
+enum class TestEnum : int16_t
+{
+    A,
+    B,
+    C
+};
+
+inline std::ostream &operator<<(std::ostream &stream, TestEnum instance)
+{
+    stream << std::to_underlying(instance);
+    return stream;
+}
+
 int main(void)
 {
     using namespace Coral;
@@ -32,9 +45,21 @@ int main(void)
     loopback_test<int8_t, std::endian::big>(circ_buf, -6);
     loopback_test<int8_t, std::endian::little>(circ_buf, -7);
 
+    loopback_test<char>(circ_buf, 'a');
+    loopback_test<char, std::endian::big>(circ_buf, 'b');
+    loopback_test<char, std::endian::little>(circ_buf, 'c');
+
     loopback_test<uint16_t>(circ_buf, 1000);
     loopback_test<uint16_t, std::endian::big>(circ_buf, 3000);
     loopback_test<uint16_t, std::endian::little>(circ_buf, 2000);
+
+    loopback_test<Result>(circ_buf, Result::Fail);
+    loopback_test<Result, std::endian::big>(circ_buf, Result::Success);
+    loopback_test<Result, std::endian::little>(circ_buf, Result::Fail);
+
+    loopback_test<TestEnum>(circ_buf, TestEnum::A);
+    loopback_test<TestEnum, std::endian::big>(circ_buf, TestEnum::B);
+    loopback_test<TestEnum, std::endian::little>(circ_buf, TestEnum::C);
 
     loopback_test<float>(circ_buf, 1.0f);
     loopback_test<float, std::endian::big>(circ_buf, -2.0f);

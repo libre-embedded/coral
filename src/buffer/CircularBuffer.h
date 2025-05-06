@@ -10,11 +10,17 @@
 #include <cstring>
 
 /* internal */
+#include "../generated/ifgen/common.h"
 #include "../generated/structs/BufferState.h"
-#include "../io/endian.h"
 
 namespace Coral
 {
+
+template <typename T>
+concept ifgen_struct = requires {
+    typename T::id;
+    typename T::size;
+};
 
 template <std::size_t depth, typename element_t = std::byte>
 class CircularBuffer
@@ -33,33 +39,53 @@ class CircularBuffer
 
     template <byte_size T, std::endian endianness = std::endian::native>
     inline void write(T elem)
+        requires byte_size<element_t>
     {
         (void)endianness;
-        write_single(element_t(elem));
+        write_single(static_cast<element_t>(elem));
     }
 
     template <typename T, std::endian endianness = std::endian::native>
     inline void write(T elem)
         requires byte_size<element_t> && (not byte_size<T>)
     {
-        handle_endian<T, endianness>(elem);
-        write_n((const element_t *)&elem, sizeof(T));
+        elem = handle_endian<T, endianness>(elem);
+        write_n(reinterpret_cast<const element_t *>(&elem), sizeof(T));
+    }
+
+    template <ifgen_struct T, std::endian endianness = std::endian::native>
+    inline void write(const T *elem)
+        requires byte_size<element_t>
+    {
+        T temp = T();
+        temp.template decode<endianness>(elem->raw_ro());
+        write_n(reinterpret_cast<const element_t *>(temp.raw_ro()), T::size);
     }
 
     template <byte_size T, std::endian endianness = std::endian::native>
     inline T read(void)
+        requires byte_size<element_t>
     {
         (void)endianness;
-        return T(read_single());
+        return static_cast<T>(read_single());
     }
 
     template <typename T, std::endian endianness = std::endian::native>
     inline T read(void)
         requires byte_size<element_t> && (not byte_size<T>)
     {
-        T result = 0;
-        read_n((element_t *)&result, sizeof(T));
-        handle_endian<T, endianness>(result);
+        T result = T();
+        read_n(reinterpret_cast<element_t *>(&result), sizeof(T));
+        return handle_endian<T, endianness>(result);
+    }
+
+    template <ifgen_struct T, std::endian endianness = std::endian::native>
+    inline T read(void)
+        requires byte_size<element_t>
+    {
+        T result = T();
+        read_n(reinterpret_cast<element_t *>(result.raw()), T::size);
+        result.template decode<endianness>(result.raw_ro());
         return result;
     }
 
