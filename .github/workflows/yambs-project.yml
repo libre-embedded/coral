@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        python-version: [3.12]
+        python-version: [3.13]
 
     env:
       PYTHON_VERSION: ${{matrix.python-version}}
@@ -42,19 +42,19 @@ jobs:
       - run: mk python-lint
       - run: mk python-sa
 
-      # - name: setup clang 18
+      # - name: setup clang 19
       #   run: |
       #     wget https://apt.llvm.org/llvm.sh
       #     chmod +x ./llvm.sh
-      #     sudo ./llvm.sh 18
+      #     sudo ./llvm.sh 19
       #     rm llvm.sh
 
-      - run: sudo apt-get install gcc-13 g++-13 lcov doxygen clang-18 clang-format-18
+      - run: sudo apt-get install gcc-14 g++-14 lcov doxygen clang-19 clang-format-19
       # List versions.
-      - run: gcc-13 --version
-      - run: g++-13 --version
-      - run: clang-18 --version
-      - run: clang++-18 --version
+      - run: gcc-14 --version
+      - run: g++-14 --version
+      - run: clang-19 --version
+      - run: clang++-19 --version
 
       - run: mk t variant=clang coverage=false
       - run: ninja all format-check
@@ -69,7 +69,7 @@ jobs:
         with:
           gcov_include: build/debug
           gcov_ignore: .mypy_cache
-          gcov_executable: gcov-13
+          gcov_executable: gcov-14
           fail_ci_if_error: true
           verbose: true
           token: ${{secrets.CODECOV_TOKEN}}
