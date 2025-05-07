@@ -5,10 +5,7 @@ description: Core C++ project utilities.
 
 main_branch: master
 
-# https://github.com/svenevs/exhale/issues/195
-ci_docs: false
-
 version:
   major: 0
   minor: 4
-  patch: 8
+  patch: 9

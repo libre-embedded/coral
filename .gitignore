@@ -15,3 +15,5 @@ mklocal
 site.env
 dist
 third-party
+src/generated
+src/apps/generated
