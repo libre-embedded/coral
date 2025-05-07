@@ -45,6 +45,15 @@ class MessageBuffer : public CircularBuffer<depth, element_t>
             buf->locked = false;
         }
 
+        template <ifgen_struct T, std::endian endianness = std::endian::native>
+        inline std::size_t point(const T *elem)
+        {
+            std::size_t result = 0;
+            result += buf->template write<decltype(T::id), endianness>(T::id);
+            result += buf->template write<T, endianness>(elem);
+            return result;
+        }
+
         const std::size_t max;
 
       protected:
@@ -62,17 +71,9 @@ class MessageBuffer : public CircularBuffer<depth, element_t>
         return MessageContext(this);
     }
 
-    inline std::size_t space(std::size_t check = 0)
+    inline std::size_t space(void)
     {
-        auto result = 0;
-
-        auto sum = data_size + check;
-        if (sum < depth)
-        {
-            result = depth - sum;
-        }
-
-        return result;
+        return (data_size < depth) ? depth - data_size : 0;
     }
 
     inline bool full(std::size_t check = 0)

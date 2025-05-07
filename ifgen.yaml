@@ -1,4 +1,7 @@
 ---
+includes:
+  - config/python/yambs/ifgen.yaml
+
 namespace: [Coral]
 
 enums:
