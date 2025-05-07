@@ -116,12 +116,12 @@ int main(void)
 
     {
         auto ctx = msg_buf.context();
-        msg_buf.write<char>('h');
-        msg_buf.write<char>('e');
-        msg_buf.write<char>('l');
-        msg_buf.write<char>('l');
-        msg_buf.write<char>('o');
-        msg_buf.write<char>('\0');
+        msg_buf.write<>('h');
+        msg_buf.write<>('e');
+        msg_buf.write<>('l');
+        msg_buf.write<>('l');
+        msg_buf.write<>('o');
+        msg_buf.write<>('\0');
     }
 
     assert(msg_buf.get_message(buf.data(), len));
@@ -138,6 +138,31 @@ int main(void)
     }
 
     assert(not msg_buf.get_message(buf.data(), len));
+
+    {
+        auto ctx = msg_buf.context();
+        Coral::BufferState state = {};
+        state.write_cursor = 256;
+        state.read_cursor = 65536;
+        state.read_count = 3;
+        state.write_count = 4;
+        ctx.point<>(&state);
+    }
+
+    assert(msg_buf.get_message(buf.data(), len));
+
+    circ_buf.reset();
+    circ_buf.write_n(reinterpret_cast<const std::byte *>(buf.data()), len);
+
+    auto id = circ_buf.read<decltype(Coral::BufferState::id)>();
+    assert(id == Coral::BufferState::id);
+
+    Coral::BufferState state = {};
+    circ_buf.read<>(&state);
+    assert(state.write_cursor == 256);
+    assert(state.read_cursor == 65536);
+    assert(state.read_count == 3);
+    assert(state.write_count == 4);
 
     return 0;
 }
