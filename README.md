@@ -2,11 +2,11 @@
     =====================================
     generator=datazen
     version=3.2.3
-    hash=a7b0c7e8bd2c6f5e3efaad6b981f6242
+    hash=ad03bd88f142ab6fa2828f2fcdb73cc0
     =====================================
 -->
 
-# coral ([0.4.8](https://github.com/libre-embedded/coral/releases/tag/0.4.8))
+# coral ([0.4.9](https://github.com/libre-embedded/coral/releases/tag/0.4.9))
 
 [![codecov](https://codecov.io/gh/libre-embedded/coral/branch/master/graph/badge.svg)](https://codecov.io/gh/libre-embedded/coral)
 ![Build Status](https://github.com/libre-embedded/coral/actions/workflows/yambs-project.yml/badge.svg)
