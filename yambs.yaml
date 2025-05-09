@@ -1,14 +1,14 @@
 # =====================================
 # generator=datazen
 # version=3.2.3
-# hash=77885232dc249c92b4afdc3b5612b446
+# hash=064fe5586036f26d99768c4647f7c088
 # =====================================
 ---
 project:
   name: coral
 
   github: {owner: &self libre-embedded}
-  version: {major: 0, minor: 4, patch: 9}
+  version: {major: 0, minor: 4, patch: 10}
 variants:
   clang:
     suffix: &clang_version "-19"

@@ -1,26 +1,6 @@
 ---
-includes:
-  - config/python/yambs/ifgen.yaml
-
 namespace: [Coral]
 
-enums:
-  Result:
-    description: Simple succeed/fail strict typing.
-    use_map: false
-    enum:
-      Fail: {value: 0}
-      Success: {value: 1}
-
-structs:
-  BufferState:
-    fields:
-      - name: write_cursor
-        type: uint32_t
-      - name: read_cursor
-        type: uint32_t
-
-      - name: read_count
-        type: uint32_t
-      - name: write_count
-        type: uint32_t
+includes:
+  - config/python/ifgen/settings.yaml
+  - config/python/ifgen/coral/include.yaml
