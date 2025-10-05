@@ -8,7 +8,6 @@
 #include <vector>
 
 /* internal */
-#include "../cli/termios_util.h"
 #include "../cli/text.h"
 #include "../logging/macros.h"
 #include "file_descriptors.h"
@@ -99,16 +98,6 @@ Result fd_info(int fd, std::ostream &stream)
         }
 
         stream << std::endl;
-
-        /* Dump terminal information. */
-        if (isatty(fd))
-        {
-            struct termios data;
-            if (tcgetattr(fd, &data) == 0)
-            {
-                dump_term_all(stream, fd, data);
-            }
-        }
     }
 
     return ToResult(success);
