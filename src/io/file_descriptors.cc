@@ -59,9 +59,13 @@ static const std::map<std::string, int> status_flags = {
     {"O_NOCTTY", O_NOCTTY},
     {"O_TRUNC", O_TRUNC},
     {"O_APPEND", O_APPEND},
+#ifdef O_ASYNC
     {"O_ASYNC", O_ASYNC},
+#endif
     {"O_DIRECT", O_DIRECT},
+#ifdef O_NOATIME
     {"O_NOATIME", O_NOATIME},
+#endif
     {"O_NONBLOCK", O_NONBLOCK},
 };
 
