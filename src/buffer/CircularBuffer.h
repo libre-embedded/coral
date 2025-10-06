@@ -38,7 +38,7 @@ class CircularBuffer
         requires byte_size<element_t> && (not byte_size<T>)
     {
         /* Parameter passed by value can be directly swapped. */
-        elem = handle_endian<T, endianness>(elem);
+        elem = handle_endian<endianness>(elem);
         return write_n(reinterpret_cast<const element_t *>(&elem), sizeof(T));
     }
 
@@ -66,7 +66,7 @@ class CircularBuffer
     {
         T result = T();
         read_n(reinterpret_cast<element_t *>(&result), sizeof(T));
-        return handle_endian<T, endianness>(result);
+        return handle_endian<endianness>(result);
     }
 
     template <ifgen_struct T, std::endian endianness = std::endian::native>

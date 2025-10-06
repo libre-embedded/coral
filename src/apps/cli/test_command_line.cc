@@ -3,6 +3,7 @@
 #endif
 
 /* internal */
+#include "cli/text.h"
 #include "common.h"
 
 bool value;
@@ -97,6 +98,12 @@ int main(void)
     test_bools_basic(buffer);
     test_ints_basic(buffer);
     test_doubles_basic(buffer);
+
+    get_stdout(true);
+    get_stdout(false);
+    print_verb_name_condition("name", "verb", true, false, false);
+    print_verb_name_condition("name", "verb", false, false, false);
+    print_verb_name_condition("name", "verb", false, true, false);
 
     return 0;
 }
