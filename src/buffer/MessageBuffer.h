@@ -50,7 +50,7 @@ class MessageBuffer : public CircularBuffer<depth, element_t>
         {
             std::size_t result = 0;
             result += buf->template write<T, endianness>(0);
-            result += buf->template write_n(elem, length);
+            result += buf->write_n(elem, length);
             return result;
         }
 
