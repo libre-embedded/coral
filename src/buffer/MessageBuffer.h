@@ -45,7 +45,16 @@ class MessageBuffer : public CircularBuffer<depth, element_t>
             buf->locked = false;
         }
 
-        template <ifgen_struct T, std::endian endianness = std::endian::native>
+        template <std::endian endianness, std::integral T>
+        inline std::size_t custom(const std::byte *elem, std::size_t length)
+        {
+            std::size_t result = 0;
+            result += buf->template write<T, endianness>(0);
+            result += buf->write_n(elem, length);
+            return result;
+        }
+
+        template <std::endian endianness, ifgen_struct T>
         inline std::size_t point(const T *elem)
         {
             std::size_t result = 0;

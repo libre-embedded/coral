@@ -146,7 +146,7 @@ int main(void)
         state.read_cursor = 65536;
         state.read_count = 3;
         state.write_count = 4;
-        ctx.point<>(&state);
+        ctx.point<std::endian::native>(&state);
     }
 
     assert(msg_buf.get_message(buf.data(), len));
