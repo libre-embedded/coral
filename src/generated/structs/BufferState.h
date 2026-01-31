@@ -15,7 +15,7 @@ namespace Coral
 struct [[gnu::packed]] BufferState
 {
     /* Constant attributes. */
-    static constexpr struct_id_t id = 2; /*!< BufferState's identifier. */
+    static constexpr struct_id_t id = 1; /*!< BufferState's identifier. */
     static constexpr std::size_t size =
         16; /*!< BufferState's size in bytes. */
 

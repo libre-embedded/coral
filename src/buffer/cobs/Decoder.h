@@ -22,7 +22,7 @@ template <std::size_t message_mtu> class MessageDecoder
     MessageDecoder(MessageCallback _callback = nullptr)
         : message(), message_index(0), message_breached_mtu(false),
           zero_pointer(0), zero_pointer_overhead(true), bytes_dropped(0),
-          callback(_callback)
+          message_count(0), callback(_callback)
     {
     }
 
@@ -103,6 +103,14 @@ template <std::size_t message_mtu> class MessageDecoder
         }
     }
 
+    void stats(uint32_t &buffer_load, uint32_t &_bytes_dropped,
+               uint16_t &messages_count)
+    {
+        buffer_load = message_index;
+        messages_count = message_count;
+        _bytes_dropped = bytes_dropped;
+    }
+
   protected:
     /* Message state. */
     std::array<uint8_t, message_mtu> message;
@@ -114,7 +122,8 @@ template <std::size_t message_mtu> class MessageDecoder
     bool zero_pointer_overhead;
 
     /* Metrics. */
-    uint16_t bytes_dropped;
+    uint32_t bytes_dropped;
+    uint16_t message_count;
 
     /*
      * Message callback.
@@ -125,6 +134,7 @@ template <std::size_t message_mtu> class MessageDecoder
     {
         if (callback and message_index and not message_breached_mtu)
         {
+            message_count++;
             callback(message, message_index);
         }
 
