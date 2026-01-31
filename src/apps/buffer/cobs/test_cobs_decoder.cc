@@ -53,6 +53,7 @@ void decoder_scenario(const uint8_t *message, std::size_t message_size,
     assert(not buffer_load);
     assert(not bytes_dropped);
     assert(messages_count);
+    assert(not decoder.stats(&buffer_load, &bytes_dropped, &messages_count));
 }
 
 static void test_decoder_contingencies(void)
