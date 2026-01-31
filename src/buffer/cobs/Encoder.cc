@@ -69,6 +69,7 @@ void MessageEncoder::advance_message(bool only_zero_pointer, std::size_t count)
 
     assert(zero_pointer >= count);
     zero_pointer -= count;
+    bytes_sent += count;
 }
 
 MessageEncoder::ZeroPointerState MessageEncoder::pointer_kind(void)
