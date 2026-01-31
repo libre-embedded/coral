@@ -4,3 +4,14 @@ namespace: [Coral]
 includes:
   - config/python/ifgen/settings.yaml
   - config/python/ifgen/coral/include.yaml
+
+structs:
+  # wip
+  CobsCodec:
+    # decode:
+    #   bytes dropped + sent + buffered
+    #   message count
+    # encode:
+    #   bytes buffered (length) + sent
+    #   message count
+    fields: []
