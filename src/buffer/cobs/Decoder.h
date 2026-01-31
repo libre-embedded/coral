@@ -103,12 +103,12 @@ template <std::size_t message_mtu> class MessageDecoder
         }
     }
 
-    void stats(uint32_t &buffer_load, uint32_t &_bytes_dropped,
-               uint16_t &messages_count)
+    void stats(uint32_t *buffer_load, uint32_t *_bytes_dropped,
+               uint16_t *messages_count)
     {
-        buffer_load = message_index;
-        messages_count = message_count;
-        _bytes_dropped = bytes_dropped;
+        *buffer_load = message_index;
+        *messages_count = message_count;
+        *_bytes_dropped = bytes_dropped;
     }
 
   protected:

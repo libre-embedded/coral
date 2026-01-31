@@ -118,12 +118,12 @@ class MessageEncoder
         return result;
     }
 
-    void stats(uint32_t &buffer_load, uint32_t &bytes_count,
-               uint16_t &messages_count)
+    void stats(uint32_t *buffer_load, uint32_t *bytes_count,
+               uint16_t *messages_count)
     {
-        buffer_load = length;
-        bytes_count = bytes_sent;
-        messages_count = messages_sent;
+        *buffer_load = length;
+        *bytes_count = bytes_sent;
+        *messages_count = messages_sent;
     }
 
   protected:

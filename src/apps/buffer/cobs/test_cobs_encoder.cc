@@ -132,7 +132,7 @@ void encoder_scenario(const uint8_t *input, std::size_t input_size,
     uint32_t buffer_load;
     uint32_t sent_count;
     uint16_t messages_count;
-    encoder.stats(buffer_load, sent_count, messages_count);
+    encoder.stats(&buffer_load, &sent_count, &messages_count);
     assert(not buffer_load);
     assert(sent_count);
     assert(messages_count);
