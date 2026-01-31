@@ -47,6 +47,7 @@ Result MessageEncoder::stage(const uint8_t *_data, std::size_t _length)
         data = _data;
         length = _length;
         state = start;
+        stats_new = true;
     }
 
     return ToResult(result);
@@ -70,6 +71,7 @@ void MessageEncoder::advance_message(bool only_zero_pointer, std::size_t count)
     assert(zero_pointer >= count);
     zero_pointer -= count;
     bytes_sent += count;
+    stats_new = true;
 }
 
 MessageEncoder::ZeroPointerState MessageEncoder::pointer_kind(void)

@@ -22,7 +22,7 @@ class MessageEncoder
   public:
     MessageEncoder(const void *_data = nullptr, std::size_t _length = 0)
         : data(nullptr), length(0), bytes_sent(0), messages_sent(0),
-          state(not_initialized)
+          stats_new(false), state(not_initialized)
     {
         /* Advance to the start state if we were constructed with real data. */
         if (_data and _length)
@@ -113,17 +113,27 @@ class MessageEncoder
 
             state = not_initialized;
             messages_sent++;
+            stats_new = true;
         }
 
         return result;
     }
 
-    void stats(uint32_t *buffer_load, uint32_t *bytes_count,
+    bool stats(uint32_t *buffer_load, uint32_t *bytes_count,
                uint16_t *messages_count)
     {
-        *buffer_load = length;
-        *bytes_count = bytes_sent;
-        *messages_count = messages_sent;
+        bool result = false;
+
+        if (stats_new)
+        {
+            *buffer_load = length;
+            *bytes_count = bytes_sent;
+            *messages_count = messages_sent;
+            stats_new = false;
+            result = true;
+        }
+
+        return result;
     }
 
   protected:
@@ -131,6 +141,7 @@ class MessageEncoder
     std::size_t length;
     uint32_t bytes_sent;
     uint16_t messages_sent;
+    bool stats_new;
 
     /*
      * Always start by encoding the first zero.

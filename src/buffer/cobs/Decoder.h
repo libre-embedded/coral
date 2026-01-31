@@ -22,7 +22,7 @@ template <std::size_t message_mtu> class MessageDecoder
     MessageDecoder(MessageCallback _callback = nullptr)
         : message(), message_index(0), message_breached_mtu(false),
           zero_pointer(0), zero_pointer_overhead(true), bytes_dropped(0),
-          message_count(0), callback(_callback)
+          message_count(0), stats_new(false), callback(_callback)
     {
     }
 
@@ -103,12 +103,21 @@ template <std::size_t message_mtu> class MessageDecoder
         }
     }
 
-    void stats(uint32_t *buffer_load, uint32_t *_bytes_dropped,
+    bool stats(uint32_t *buffer_load, uint32_t *_bytes_dropped,
                uint16_t *messages_count)
     {
-        *buffer_load = message_index;
-        *messages_count = message_count;
-        *_bytes_dropped = bytes_dropped;
+        bool result = false;
+
+        if (stats_new)
+        {
+            *buffer_load = message_index;
+            *messages_count = message_count;
+            *_bytes_dropped = bytes_dropped;
+            stats_new = false;
+            result = true;
+        }
+
+        return result;
     }
 
   protected:
@@ -124,6 +133,7 @@ template <std::size_t message_mtu> class MessageDecoder
     /* Metrics. */
     uint32_t bytes_dropped;
     uint16_t message_count;
+    bool stats_new;
 
     /*
      * Message callback.
@@ -135,6 +145,7 @@ template <std::size_t message_mtu> class MessageDecoder
         if (callback and message_index and not message_breached_mtu)
         {
             message_count++;
+            stats_new = true;
             callback(message, message_index);
         }
 
@@ -148,6 +159,8 @@ template <std::size_t message_mtu> class MessageDecoder
 
     void reset(void)
     {
+        stats_new = stats_new or message_index != 0;
+
         /* Reset message state. */
         message_index = 0;
         message_breached_mtu = false;
@@ -162,6 +175,7 @@ template <std::size_t message_mtu> class MessageDecoder
         /* Consume all data bytes as dropped bytes. */
         bytes_dropped += message_index;
         message_index = 0;
+        stats_new = true;
     }
 
     void add_to_message(uint8_t value)
@@ -177,12 +191,14 @@ template <std::size_t message_mtu> class MessageDecoder
         else if (message_breached_mtu)
         {
             bytes_dropped++;
+            stats_new = true;
         }
 
         /* Regular, valid message byte. */
         else
         {
             message[message_index++] = value;
+            stats_new = true;
         }
     }
 };
