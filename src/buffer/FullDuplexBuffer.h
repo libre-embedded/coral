@@ -7,12 +7,12 @@ namespace Coral
 {
 
 template <class T, size_t tx_depth, size_t rx_depth,
-          typename element_t = std::byte>
+          typename element_t = std::byte, std::size_t alignment = 1>
 class FullDuplexBuffer
 {
   public:
-    using TxBuffer = PcBuffer<tx_depth, element_t>;
-    using RxBuffer = PcBuffer<rx_depth, element_t>;
+    using TxBuffer = PcBuffer<tx_depth, element_t, alignment>;
+    using RxBuffer = PcBuffer<rx_depth, element_t, alignment>;
 
     FullDuplexBuffer(bool _auto_service = true)
         : tx(_auto_service), rx(_auto_service)

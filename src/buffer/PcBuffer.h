@@ -16,12 +16,15 @@
 namespace Coral
 {
 
-template <std::size_t depth, typename element_t = std::byte>
-class PcBuffer : public PcBufferWriter<PcBuffer<depth, element_t>, element_t>,
-                 public PcBufferReader<PcBuffer<depth, element_t>, element_t>
+template <std::size_t depth, typename element_t = std::byte,
+          std::size_t alignment = 1>
+class PcBuffer
+    : public PcBufferWriter<PcBuffer<depth, element_t, alignment>, element_t>,
+      public PcBufferReader<PcBuffer<depth, element_t, alignment>, element_t>
 {
   public:
-    using ServiceCallback = std::function<void(PcBuffer<depth, element_t> *)>;
+    using ServiceCallback =
+        std::function<void(PcBuffer<depth, element_t, alignment> *)>;
 
     PcBuffer(bool _auto_service = false,
              ServiceCallback _space_available = nullptr,
@@ -220,7 +223,7 @@ class PcBuffer : public PcBufferWriter<PcBuffer<depth, element_t>, element_t>,
     PcBufferState state;
 
   protected:
-    CircularBuffer<depth, element_t> buffer;
+    CircularBuffer<depth, element_t, alignment> buffer;
 
     ServiceCallback space_available;
     ServiceCallback data_available;
@@ -251,18 +254,22 @@ class PcBuffer : public PcBufferWriter<PcBuffer<depth, element_t>, element_t>,
 };
 
 /* Convenient aliases. */
-template <std::size_t depth> using ByteBuffer = PcBuffer<depth>;
-template <std::size_t depth> using CharBuffer = PcBuffer<depth, char>;
-template <std::size_t depth> using WcharBuffer = PcBuffer<depth, wchar_t>;
+template <std::size_t depth, std::size_t alignment = 1>
+using ByteBuffer = PcBuffer<depth, std::byte, alignment>;
+template <std::size_t depth, std::size_t alignment = 1>
+using CharBuffer = PcBuffer<depth, char, alignment>;
+template <std::size_t depth, std::size_t alignment = 1>
+using WcharBuffer = PcBuffer<depth, wchar_t, alignment>;
 
 /*
  * Stream interfaces.
  */
 
-template <std::size_t depth, typename element_t = std::byte>
+template <std::size_t depth, typename element_t = std::byte,
+          std::size_t alignment = 1>
 inline std::basic_istream<element_t> &operator>>(
     std::basic_istream<element_t> &stream,
-    PcBuffer<depth, element_t> &instance)
+    PcBuffer<depth, element_t, alignment> &instance)
 {
     std::array<element_t, depth> elem_array;
     instance.push_n_blocking(elem_array.data(),
@@ -270,10 +277,11 @@ inline std::basic_istream<element_t> &operator>>(
     return stream;
 }
 
-template <std::size_t depth, typename element_t = std::byte>
+template <std::size_t depth, typename element_t = std::byte,
+          std::size_t alignment = 1>
 inline std::basic_ostream<element_t> &operator<<(
     std::basic_ostream<element_t> &stream,
-    PcBuffer<depth, element_t> &instance)
+    PcBuffer<depth, element_t, alignment> &instance)
 {
     std::array<element_t, depth> elem_array;
     stream.write(elem_array.data(), instance.try_pop_n(elem_array));

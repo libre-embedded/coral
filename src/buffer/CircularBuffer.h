@@ -16,10 +16,12 @@
 namespace Coral
 {
 
-template <std::size_t depth, typename element_t = std::byte>
+template <std::size_t depth, typename element_t = std::byte,
+          std::size_t alignment = 1>
 class CircularBuffer
 {
     static_assert(depth > 0);
+    static_assert(std::has_single_bit(alignment));
 
   public:
     CircularBuffer() : buffer(), state()
@@ -205,7 +207,7 @@ class CircularBuffer
     }
 
   protected:
-    std::array<element_t, depth> buffer;
+    alignas(alignment) std::array<element_t, depth> buffer;
 
     BufferState state;
 
