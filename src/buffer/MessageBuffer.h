@@ -132,7 +132,8 @@ class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
     }
 
   protected:
-    CircularBuffer<max_messages, std::size_t> message_sizes;
+    CircularBuffer<max_messages, std::size_t, sizeof(std::size_t)>
+        message_sizes;
     std::size_t num_messages;
     std::size_t data_size;
     bool locked;
