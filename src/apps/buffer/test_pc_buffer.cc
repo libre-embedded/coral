@@ -12,6 +12,21 @@
 
 using Buffer = PcBuffer<depth, element_t>;
 
+void test_alignment(void)
+{
+    PcBuffer<depth, element_t, 2> buf1;
+    assert(reinterpret_cast<std::uintptr_t>(buf1.head()) % 2 == 0);
+    PcBuffer<depth, element_t, 4> buf2;
+    assert(reinterpret_cast<std::uintptr_t>(buf2.head()) % 4 == 0);
+    PcBuffer<depth, element_t, 8> buf3;
+    assert(reinterpret_cast<std::uintptr_t>(buf3.head()) % 8 == 0);
+    PcBuffer<depth, element_t, 16> buf4;
+    assert(reinterpret_cast<std::uintptr_t>(buf4.head()) % 16 == 0);
+
+    // PcBuffer<depth, element_t, 3> buf5;
+    // assert(buf5.head());
+}
+
 void test_basic(Buffer &buf)
 {
     assert(buf.head());
@@ -114,6 +129,7 @@ int main(void)
     assert(buf.empty());
     assert(!buf.full());
 
+    test_alignment();
     test_basic(buf);
     test_n_push_pop(buf);
 
