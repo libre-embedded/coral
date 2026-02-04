@@ -14,6 +14,8 @@ using Buffer = PcBuffer<depth, element_t>;
 
 void test_basic(Buffer &buf)
 {
+    assert(buf.head());
+
     buf.clear();
 
     element_t val = 0;

@@ -199,6 +199,11 @@ class CircularBuffer
         state = {};
     }
 
+    inline const element_t *head(void)
+    {
+        return buffer.data();
+    }
+
   protected:
     std::array<element_t, depth> buffer;
 

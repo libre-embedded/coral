@@ -212,6 +212,11 @@ class PcBuffer : public PcBufferWriter<PcBuffer<depth, element_t>, element_t>,
         }
     }
 
+    inline const element_t *head(void)
+    {
+        return buffer.head();
+    }
+
     PcBufferState state;
 
   protected:
