@@ -12,7 +12,8 @@ namespace Coral
 {
 
 template <std::size_t depth, std::size_t max_messages,
-          byte_size element_t = std::byte, std::size_t alignment = 1>
+          byte_size element_t = std::byte,
+          std::size_t alignment = sizeof(element_t)>
 class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
 {
   public:
@@ -132,8 +133,7 @@ class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
     }
 
   protected:
-    CircularBuffer<max_messages, std::size_t, sizeof(std::size_t)>
-        message_sizes;
+    CircularBuffer<max_messages, std::size_t> message_sizes;
     std::size_t num_messages;
     std::size_t data_size;
     bool locked;

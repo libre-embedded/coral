@@ -7,7 +7,8 @@ namespace Coral
 {
 
 template <class T, size_t tx_depth, size_t rx_depth,
-          typename element_t = std::byte, std::size_t alignment = 1>
+          typename element_t = std::byte,
+          std::size_t alignment = sizeof(element_t)>
 class FullDuplexBuffer
 {
   public:

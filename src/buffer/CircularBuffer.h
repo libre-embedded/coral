@@ -17,7 +17,7 @@ namespace Coral
 {
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = 1>
+          std::size_t alignment = sizeof(element_t)>
 class CircularBuffer
 {
     static_assert(depth > 0);

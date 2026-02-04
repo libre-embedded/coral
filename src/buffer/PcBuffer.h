@@ -17,7 +17,7 @@ namespace Coral
 {
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = 1>
+          std::size_t alignment = sizeof(element_t)>
 class PcBuffer
     : public PcBufferWriter<PcBuffer<depth, element_t, alignment>, element_t>,
       public PcBufferReader<PcBuffer<depth, element_t, alignment>, element_t>
@@ -254,11 +254,11 @@ class PcBuffer
 };
 
 /* Convenient aliases. */
-template <std::size_t depth, std::size_t alignment = 1>
+template <std::size_t depth, std::size_t alignment = sizeof(std::byte)>
 using ByteBuffer = PcBuffer<depth, std::byte, alignment>;
-template <std::size_t depth, std::size_t alignment = 1>
+template <std::size_t depth, std::size_t alignment = sizeof(char)>
 using CharBuffer = PcBuffer<depth, char, alignment>;
-template <std::size_t depth, std::size_t alignment = 1>
+template <std::size_t depth, std::size_t alignment = sizeof(wchar_t)>
 using WcharBuffer = PcBuffer<depth, wchar_t, alignment>;
 
 /*
@@ -266,7 +266,7 @@ using WcharBuffer = PcBuffer<depth, wchar_t, alignment>;
  */
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = 1>
+          std::size_t alignment = sizeof(element_t)>
 inline std::basic_istream<element_t> &operator>>(
     std::basic_istream<element_t> &stream,
     PcBuffer<depth, element_t, alignment> &instance)
@@ -278,7 +278,7 @@ inline std::basic_istream<element_t> &operator>>(
 }
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = 1>
+          std::size_t alignment = sizeof(element_t)>
 inline std::basic_ostream<element_t> &operator<<(
     std::basic_ostream<element_t> &stream,
     PcBuffer<depth, element_t, alignment> &instance)
