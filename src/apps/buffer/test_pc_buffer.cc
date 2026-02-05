@@ -59,6 +59,14 @@ void test_basic(Buffer &buf)
 
     /* Should not be able to read any more data. */
     assert(!buf.pop(val));
+
+    buf.push_n(nullptr, 1);
+    assert(buf.pop(val));
+    buf.push_n(nullptr, 10);
+    buf.peek();
+    assert(buf.pop_all() == 10);
+    buf.try_push_n(nullptr, 1024);
+    buf.pop_all();
 }
 
 void test_n_push_pop(Buffer &buf)
