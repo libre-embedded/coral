@@ -105,12 +105,15 @@ class CircularBuffer
             to_write = std::min(max_contiguous, count);
 
             /* Copy the bytes (elements -> buffer). */
-            std::memcpy(&(buffer.data()[write_index()]), elem_array,
-                        to_write * sizeof(element_t));
+            if (elem_array)
+            {
+                std::memcpy(&(buffer.data()[write_index()]), elem_array,
+                            to_write * sizeof(element_t));
+                elem_array += to_write;
+            }
 
             count -= to_write;
             state.write_cursor += to_write;
-            elem_array += to_write;
 
             state.write_count += to_write;
         }
