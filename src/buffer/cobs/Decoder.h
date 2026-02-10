@@ -5,12 +5,13 @@
 #include <limits>
 
 /* internal */
+#include "../../generated/ifgen/common.h"
 #include "../PcBufferReader.h"
 
 namespace Coral::Cobs
 {
 
-template <std::size_t message_mtu, typename element_t = std::byte>
+template <std::size_t message_mtu, byte_size element_t = std::byte>
 class MessageDecoder
 {
   public:

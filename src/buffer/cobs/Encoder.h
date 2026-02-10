@@ -6,6 +6,7 @@
 #include <limits>
 
 /* internal */
+#include "../../generated/ifgen/common.h"
 #include "../PcBufferWriter.h"
 
 namespace Coral::Cobs
@@ -27,13 +28,20 @@ class MessageEncoder
         /* Advance to the start state if we were constructed with real data. */
         if (_data and _length)
         {
-            stage((const uint8_t *)_data, _length);
+            stage(reinterpret_cast<const uint8_t *>(_data), _length);
         }
     }
 
     /* Attempt to stage a message for encoding. */
     Result stage(const uint8_t *_data, std::size_t _length);
-    Result stage(const char *_data, std::size_t _length);
+    inline Result stage(const char *_data, std::size_t _length)
+    {
+        return stage((const uint8_t *)_data, _length);
+    }
+    inline Result stage(const std::byte *_data, std::size_t _length)
+    {
+        return stage((const uint8_t *)_data, _length);
+    }
 
     /*
      * Make as much encoding progress as possible. Returns true when the staged
@@ -47,7 +55,7 @@ class MessageEncoder
      *
      * An assertion fails if a message is not currently staged.
      */
-    template <class T, typename element_t = std::byte>
+    template <class T, byte_size element_t = std::byte>
     bool encode(PcBufferWriter<T, element_t> &writer)
     {
         /* Attempting to encode with no staged message is a usage bug. */
@@ -182,7 +190,7 @@ class MessageEncoder
     void advance_message(bool only_zero_pointer = false,
                          std::size_t count = 1);
 
-    template <class T, typename element_t = std::byte>
+    template <class T, byte_size element_t = std::byte>
     bool handle_zero_pointer(PcBufferWriter<T, element_t> &writer)
     {
         bool handled = false;
@@ -230,7 +238,7 @@ class MessageEncoder
         return handled;
     }
 
-    template <class T, typename element_t = std::byte>
+    template <class T, byte_size element_t = std::byte>
     bool handle_encode_zero(PcBufferWriter<T, element_t> &writer)
     {
         bool can_continue = handle_zero_pointer(writer);
@@ -244,7 +252,7 @@ class MessageEncoder
         return can_continue;
     }
 
-    template <class T, typename element_t = std::byte>
+    template <class T, byte_size element_t = std::byte>
     bool handle_encode_data(PcBufferWriter<T, element_t> &writer)
     {
         bool can_continue = true;
@@ -260,7 +268,8 @@ class MessageEncoder
 
         /* Write data until the next zero. */
         else if ((can_continue = ToBool(
-                      writer.push_n((const element_t *)data, zero_pointer))))
+                      writer.push_n(reinterpret_cast<const element_t *>(data),
+                                    zero_pointer))))
         {
             advance_message(false, zero_pointer);
 

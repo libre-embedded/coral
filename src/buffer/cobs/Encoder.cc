@@ -53,11 +53,6 @@ Result MessageEncoder::stage(const uint8_t *_data, std::size_t _length)
     return ToResult(result);
 }
 
-Result MessageEncoder::stage(const char *_data, std::size_t _length)
-{
-    return stage((const uint8_t *)_data, _length);
-}
-
 void MessageEncoder::advance_message(bool only_zero_pointer, std::size_t count)
 {
     if (not only_zero_pointer)
