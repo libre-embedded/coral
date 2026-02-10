@@ -15,7 +15,7 @@ using namespace Coral;
 
 static constexpr std::size_t message_mtu = 1024;
 
-using Decoder = Cobs::MessageDecoder<message_mtu>;
+using Decoder = Cobs::MessageDecoder<message_mtu, uint8_t>;
 using Encoder = Cobs::MessageEncoder;
 using PcBuf = PcBuffer<message_mtu * 2, uint8_t>;
 
@@ -35,8 +35,8 @@ void test_string(const std::string &message)
     /* Register message validation. */
     Decoder decoder = Decoder();
     bool message_seen = false;
-    register_message_validator<message_mtu>(decoder, message_seen, message_ptr,
-                                            message_size);
+    register_message_validator(decoder, message_seen, message_ptr,
+                               message_size);
 
     /* Decode the message. */
     decoder.dispatch(buffer);

@@ -11,7 +11,7 @@ using namespace Coral;
 
 static constexpr std::size_t message_mtu = 1024;
 
-using Decoder = Cobs::MessageDecoder<message_mtu>;
+using Decoder = Cobs::MessageDecoder<message_mtu, uint8_t>;
 using PcBuf = PcBuffer<message_mtu * 2, uint8_t>;
 
 void decoder_scenario(const uint8_t *message, std::size_t message_size,
@@ -21,8 +21,7 @@ void decoder_scenario(const uint8_t *message, std::size_t message_size,
 
     bool message_seen = false;
 
-    register_message_validator<message_mtu>(decoder, message_seen, expected,
-                                            expected_size);
+    register_message_validator(decoder, message_seen, expected, expected_size);
 
     /* Write the message into the buffer. */
     PcBuf buffer;
@@ -58,7 +57,7 @@ void decoder_scenario(const uint8_t *message, std::size_t message_size,
 
 static void test_decoder_contingencies(void)
 {
-    Cobs::MessageDecoder<4> decoder;
+    Cobs::MessageDecoder<4, uint8_t> decoder;
     PcBuf buffer;
 
     buffer.push(10);

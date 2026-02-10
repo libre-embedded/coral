@@ -10,14 +10,15 @@
 namespace Coral::Cobs
 {
 
-template <std::size_t message_mtu> class MessageDecoder
+template <std::size_t message_mtu, typename element_t = std::byte>
+class MessageDecoder
 {
   public:
+    using Array = std::array<element_t, message_mtu>;
     /*
      * A callback prototype for handling fully decoded messages.
      */
-    using MessageCallback = std::function<void(
-        const std::array<uint8_t, message_mtu> &, std::size_t)>;
+    using MessageCallback = std::function<void(const Array &, std::size_t)>;
 
     MessageDecoder(MessageCallback _callback = nullptr)
         : message(), message_index(0), message_breached_mtu(false),
@@ -33,10 +34,9 @@ template <std::size_t message_mtu> class MessageDecoder
         callback = _callback;
     }
 
-    template <class T, typename element_t = std::byte>
-    void dispatch(PcBufferReader<T, element_t> &reader)
+    template <class T> void dispatch(PcBufferReader<T, element_t> &reader)
     {
-        uint8_t current;
+        element_t current;
         bool can_continue;
 
         /*
@@ -122,7 +122,7 @@ template <std::size_t message_mtu> class MessageDecoder
 
   protected:
     /* Message state. */
-    std::array<uint8_t, message_mtu> message;
+    Array message;
     std::size_t message_index;
     bool message_breached_mtu;
 
@@ -178,7 +178,7 @@ template <std::size_t message_mtu> class MessageDecoder
         stats_new = true;
     }
 
-    void add_to_message(uint8_t value)
+    void add_to_message(element_t value)
     {
         /* Discard all current data if we hit the MTU ceiling. */
         if (message_index >= message_mtu and not message_breached_mtu)

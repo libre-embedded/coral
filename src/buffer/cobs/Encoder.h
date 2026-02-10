@@ -259,7 +259,8 @@ class MessageEncoder
         }
 
         /* Write data until the next zero. */
-        else if ((can_continue = ToBool(writer.push_n(data, zero_pointer))))
+        else if ((can_continue = ToBool(
+                      writer.push_n((const element_t *)data, zero_pointer))))
         {
             advance_message(false, zero_pointer);
 
