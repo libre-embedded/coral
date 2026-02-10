@@ -13,10 +13,10 @@ namespace Coral
 
 void dump_buffer(const uint8_t *data, std::size_t size);
 
-template <std::size_t _message_mtu>
-void register_message_validator(Cobs::MessageDecoder<_message_mtu> &decoder,
-                                bool &message_seen, const uint8_t *&expected,
-                                std::size_t &expected_size)
+template <std::size_t _message_mtu, typename _element_t = std::byte>
+void register_message_validator(
+    Cobs::MessageDecoder<_message_mtu, _element_t> &decoder,
+    bool &message_seen, const uint8_t *&expected, std::size_t &expected_size)
 {
     decoder.set_message_callback(
         [&expected, &expected_size, &message_seen](
