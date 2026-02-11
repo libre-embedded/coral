@@ -20,12 +20,14 @@ namespace Coral
 template <std::size_t depth, typename element_t = std::byte,
           std::size_t alignment = sizeof(element_t), class Lock = NoopLock>
 class PcBuffer
-    : public PcBufferWriter<PcBuffer<depth, element_t, alignment>, element_t>,
-      public PcBufferReader<PcBuffer<depth, element_t, alignment>, element_t>
+    : public PcBufferWriter<PcBuffer<depth, element_t, alignment, Lock>,
+                            element_t>,
+      public PcBufferReader<PcBuffer<depth, element_t, alignment, Lock>,
+                            element_t>
 {
   public:
     using ServiceCallback =
-        std::function<void(PcBuffer<depth, element_t, alignment> *)>;
+        std::function<void(PcBuffer<depth, element_t, alignment, Lock> *)>;
 
     PcBuffer(bool _auto_service = false,
              ServiceCallback _space_available = nullptr,
@@ -63,6 +65,8 @@ class PcBuffer
 
     inline void clear()
     {
+        Lock lock;
+
         /* Reset state. */
         state.reset();
 
@@ -288,22 +292,25 @@ class PcBuffer
 };
 
 /* Convenient aliases. */
-template <std::size_t depth, std::size_t alignment = sizeof(std::byte)>
-using ByteBuffer = PcBuffer<depth, std::byte, alignment>;
-template <std::size_t depth, std::size_t alignment = sizeof(char)>
-using CharBuffer = PcBuffer<depth, char, alignment>;
-template <std::size_t depth, std::size_t alignment = sizeof(wchar_t)>
-using WcharBuffer = PcBuffer<depth, wchar_t, alignment>;
+template <std::size_t depth, std::size_t alignment = sizeof(std::byte),
+          class Lock = NoopLock>
+using ByteBuffer = PcBuffer<depth, std::byte, alignment, Lock>;
+template <std::size_t depth, std::size_t alignment = sizeof(char),
+          class Lock = NoopLock>
+using CharBuffer = PcBuffer<depth, char, alignment, Lock>;
+template <std::size_t depth, std::size_t alignment = sizeof(wchar_t),
+          class Lock = NoopLock>
+using WcharBuffer = PcBuffer<depth, wchar_t, alignment, Lock>;
 
 /*
  * Stream interfaces.
  */
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = sizeof(element_t)>
+          std::size_t alignment = sizeof(element_t), class Lock = NoopLock>
 inline std::basic_istream<element_t> &operator>>(
     std::basic_istream<element_t> &stream,
-    PcBuffer<depth, element_t, alignment> &instance)
+    PcBuffer<depth, element_t, alignment, Lock> &instance)
 {
     std::array<element_t, depth> elem_array;
     instance.push_n_blocking(elem_array.data(),
@@ -312,10 +319,10 @@ inline std::basic_istream<element_t> &operator>>(
 }
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = sizeof(element_t)>
+          std::size_t alignment = sizeof(element_t), class Lock = NoopLock>
 inline std::basic_ostream<element_t> &operator<<(
     std::basic_ostream<element_t> &stream,
-    PcBuffer<depth, element_t, alignment> &instance)
+    PcBuffer<depth, element_t, alignment, Lock> &instance)
 {
     std::array<element_t, depth> elem_array;
     stream.write(elem_array.data(), instance.try_pop_n(elem_array));
