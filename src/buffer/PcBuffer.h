@@ -18,8 +18,7 @@ namespace Coral
 {
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = sizeof(element_t), class TxLock = NoopLock,
-          class RxLock = NoopLock>
+          std::size_t alignment = sizeof(element_t), class Lock = NoopLock>
 class PcBuffer
     : public PcBufferWriter<PcBuffer<depth, element_t, alignment>, element_t>,
       public PcBufferReader<PcBuffer<depth, element_t, alignment>, element_t>
@@ -86,7 +85,7 @@ class PcBuffer
 
         bool result;
         {
-            RxLock lock;
+            Lock lock;
             result = state.decrement_data();
             if (result)
             {
@@ -112,7 +111,7 @@ class PcBuffer
 
         bool result;
         {
-            RxLock lock;
+            Lock lock;
             result = state.decrement_data(count);
             if (result)
             {
@@ -159,7 +158,7 @@ class PcBuffer
 
         bool result;
         {
-            TxLock lock;
+            Lock lock;
             result = state.increment_data(drop);
             if (result)
             {
@@ -202,7 +201,7 @@ class PcBuffer
 
         bool result;
         {
-            TxLock lock;
+            Lock lock;
             result = state.increment_data(drop, count);
             if (result)
             {
