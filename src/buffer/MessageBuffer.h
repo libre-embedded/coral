@@ -47,7 +47,7 @@ class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
         }
 
         template <std::endian endianness, std::integral T>
-        inline std::size_t custom(const std::byte *elem, std::size_t length)
+        inline std::size_t custom(const element_t *elem, std::size_t length)
         {
             std::size_t result = 0;
             result += buf->template write<T, endianness>(0);
