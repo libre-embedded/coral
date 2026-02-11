@@ -3,6 +3,7 @@
 #endif
 
 /* internal */
+#include "ContextLock.h"
 #include "logging/macros.h"
 
 /* toolchain */
@@ -10,6 +11,7 @@
 
 static void test_return_if(void)
 {
+    Coral::NoopLock lock;
     LogReturnIf(true);
 }
 
