@@ -16,22 +16,22 @@ class MessageDecoder
 {
   public:
     using Array = std::array<element_t, message_mtu>;
+
     /*
      * A callback prototype for handling fully decoded messages.
      */
     using MessageCallback = std::function<void(const Array &, std::size_t)>;
 
     MessageDecoder(MessageCallback _callback = nullptr)
-        : message(), message_index(0), message_breached_mtu(false),
-          zero_pointer(0), zero_pointer_overhead(true), bytes_dropped(0),
-          message_count(0), stats_new(false), callback(_callback)
+        : callback(_callback), message(), message_index(0),
+          message_breached_mtu(false), zero_pointer(0),
+          zero_pointer_overhead(true), bytes_dropped(0), message_count(0),
+          stats_new(false)
     {
     }
 
     void set_message_callback(MessageCallback _callback)
     {
-        /* Don't allow double assignment. */
-        assert(_callback and callback == nullptr);
         callback = _callback;
     }
 
@@ -121,6 +121,11 @@ class MessageDecoder
         return result;
     }
 
+    /*
+     * Message callback.
+     */
+    MessageCallback callback;
+
   protected:
     /* Message state. */
     Array message;
@@ -135,11 +140,6 @@ class MessageDecoder
     uint32_t bytes_dropped;
     uint16_t message_count;
     bool stats_new;
-
-    /*
-     * Message callback.
-     */
-    MessageCallback callback;
 
     void service_callback(void)
     {
