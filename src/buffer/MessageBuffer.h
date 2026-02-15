@@ -50,7 +50,7 @@ class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
         inline std::size_t custom(const element_t *elem, std::size_t length)
         {
             std::size_t result = 0;
-            result += buf->template write<T, endianness>(0);
+            result += buf->template write<endianness, T>(0);
             result += buf->write_n(elem, length);
             return result;
         }
@@ -59,8 +59,8 @@ class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
         inline std::size_t point(const T *elem)
         {
             std::size_t result = 0;
-            result += buf->template write<decltype(T::id), endianness>(T::id);
-            result += buf->template write<T, endianness>(elem);
+            result += buf->template write<endianness>(T::id);
+            result += buf->template write<endianness>(elem);
             return result;
         }
 

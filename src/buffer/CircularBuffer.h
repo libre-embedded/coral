@@ -30,14 +30,14 @@ class CircularBuffer
     {
     }
 
-    template <byte_size T, std::endian endianness = std::endian::native>
+    template <std::endian endianness, byte_size T>
     inline std::size_t write(T elem)
         requires byte_size<element_t>
     {
         return write_single(static_cast<element_t>(elem));
     }
 
-    template <typename T, std::endian endianness = std::endian::native>
+    template <std::endian endianness, typename T>
     inline std::size_t write(T elem)
         requires byte_size<element_t> && (not byte_size<T>)
     {
@@ -46,7 +46,7 @@ class CircularBuffer
         return write_n(reinterpret_cast<const element_t *>(&elem), sizeof(T));
     }
 
-    template <ifgen_struct T, std::endian endianness = std::endian::native>
+    template <std::endian endianness, ifgen_struct T>
     inline std::size_t write(const T *elem)
         requires byte_size<element_t>
     {
@@ -57,14 +57,14 @@ class CircularBuffer
                        T::size);
     }
 
-    template <byte_size T, std::endian endianness = std::endian::native>
+    template <std::endian endianness, byte_size T>
     inline T read(void)
         requires byte_size<element_t>
     {
         return static_cast<T>(read_single());
     }
 
-    template <typename T, std::endian endianness = std::endian::native>
+    template <std::endian endianness, typename T>
     inline T read(void)
         requires byte_size<element_t> && (not byte_size<T>)
     {
@@ -73,7 +73,7 @@ class CircularBuffer
         return handle_endian<endianness>(result);
     }
 
-    template <ifgen_struct T, std::endian endianness = std::endian::native>
+    template <std::endian endianness, ifgen_struct T>
     inline void read(T *elem)
         requires byte_size<element_t>
     {
