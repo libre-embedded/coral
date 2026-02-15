@@ -94,6 +94,9 @@ void test_n_push_pop(Buffer &buf)
     assert(buf.pop_all(new_data) == 0);
     assert(buf.push_n(data, depth));
     assert(buf.pop_all(new_data) == depth);
+
+    assert(not buf.pop_n(new_data, depth));
+    assert(not buf.push_n(data, depth * 2));
 }
 
 void test_drop_data(Buffer &buf)
