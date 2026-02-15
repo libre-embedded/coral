@@ -24,6 +24,8 @@ class CircularBuffer
     static_assert(std::has_single_bit(alignment));
 
   public:
+    static constexpr std::size_t Depth = depth;
+
     CircularBuffer() : buffer(), state()
     {
     }
