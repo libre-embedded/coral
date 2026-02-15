@@ -26,6 +26,8 @@ class PcBuffer
                             element_t>
 {
   public:
+    static constexpr std::size_t Depth = depth;
+
     using ServiceCallback =
         std::function<void(PcBuffer<depth, element_t, alignment, Lock> *)>;
 
