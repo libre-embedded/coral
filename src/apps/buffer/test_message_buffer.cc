@@ -16,9 +16,9 @@ using CircBuffer = Coral::CircularBuffer<buffer_size>;
 template <typename T, std::endian endianness = std::endian::native>
 void loopback_test(CircBuffer &circ_buf, T value)
 {
-    circ_buf.write<T, endianness>(value);
+    circ_buf.write<endianness, T>(value);
     std::cout << "wrote: '" << value << "'" << std::endl;
-    T compare = circ_buf.read<T, endianness>();
+    T compare = circ_buf.read<endianness, T>();
     std::cout << "read:  '" << compare << "'" << std::endl;
     assert(compare == value);
 }
@@ -44,10 +44,10 @@ void struct_test(CircBuffer &circ_buf)
     state1.read_cursor = 65536;
     state1.read_count = 3;
     state1.write_count = 4;
-    circ_buf.write<Coral::BufferState, endianness>(&state1);
+    circ_buf.write<endianness, decltype(state1)>(&state1);
 
     Coral::BufferState state2 = {};
-    circ_buf.read<Coral::BufferState, endianness>(&state2);
+    circ_buf.read<endianness>(&state2);
     assert(state2.write_cursor == 256);
     assert(state2.read_cursor == 65536);
     assert(state2.read_count == 3);
@@ -116,12 +116,12 @@ int main(void)
 
     {
         auto ctx = msg_buf.context();
-        msg_buf.write<>('h');
-        msg_buf.write<>('e');
-        msg_buf.write<>('l');
-        msg_buf.write<>('l');
-        msg_buf.write<>('o');
-        msg_buf.write<>('\0');
+        msg_buf.write<default_endian>('h');
+        msg_buf.write<default_endian>('e');
+        msg_buf.write<default_endian>('l');
+        msg_buf.write<default_endian>('l');
+        msg_buf.write<default_endian>('o');
+        msg_buf.write<default_endian>('\0');
     }
 
     assert(msg_buf.get_message(buf.data(), len));
@@ -154,11 +154,12 @@ int main(void)
     circ_buf.reset();
     circ_buf.write_n(reinterpret_cast<const std::byte *>(buf.data()), len);
 
-    auto id = circ_buf.read<decltype(Coral::BufferState::id)>();
+    auto id =
+        circ_buf.read<default_endian, decltype(Coral::BufferState::id)>();
     assert(id == Coral::BufferState::id);
 
     Coral::BufferState state = {};
-    circ_buf.read<>(&state);
+    circ_buf.read<default_endian>(&state);
     assert(state.write_cursor == 256);
     assert(state.read_cursor == 65536);
     assert(state.read_count == 3);

@@ -8,6 +8,7 @@
 #include <functional>
 
 /* internal */
+#include "../ContextLock.h"
 #include "CircularBuffer.h"
 #include "PcBufferReader.h"
 #include "PcBufferState.h"
@@ -17,14 +18,18 @@ namespace Coral
 {
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = sizeof(element_t)>
+          std::size_t alignment = sizeof(element_t), class Lock = NoopLock>
 class PcBuffer
-    : public PcBufferWriter<PcBuffer<depth, element_t, alignment>, element_t>,
-      public PcBufferReader<PcBuffer<depth, element_t, alignment>, element_t>
+    : public PcBufferWriter<PcBuffer<depth, element_t, alignment, Lock>,
+                            element_t>,
+      public PcBufferReader<PcBuffer<depth, element_t, alignment, Lock>,
+                            element_t>
 {
   public:
+    static constexpr std::size_t Depth = depth;
+
     using ServiceCallback =
-        std::function<void(PcBuffer<depth, element_t, alignment> *)>;
+        std::function<void(PcBuffer<depth, element_t, alignment, Lock> *)>;
 
     PcBuffer(bool _auto_service = false,
              ServiceCallback _space_available = nullptr,
@@ -62,6 +67,8 @@ class PcBuffer
 
     inline void clear()
     {
+        Lock lock;
+
         /* Reset state. */
         state.reset();
 
@@ -82,10 +89,18 @@ class PcBuffer
             service_space();
         }
 
-        auto result = state.decrement_data();
+        bool result;
+        {
+            Lock lock;
+            result = state.decrement_data();
+            if (result)
+            {
+                buffer.read_single(elem);
+            }
+        }
+
         if (result)
         {
-            buffer.read_single(elem);
             service_space();
         }
 
@@ -100,10 +115,18 @@ class PcBuffer
             service_space();
         }
 
-        auto result = state.decrement_data(count);
+        bool result;
+        {
+            Lock lock;
+            result = state.decrement_data(count);
+            if (result)
+            {
+                buffer.read_n(elem_array, count);
+            }
+        }
+
         if (result)
         {
-            buffer.read_n(elem_array, count);
             service_space();
         }
 
@@ -116,7 +139,7 @@ class PcBuffer
 
         if (count)
         {
-            pop_n_impl(elem_array, count);
+            count = ToBool(pop_n_impl(elem_array, count)) ? count : 0;
         }
 
         return count;
@@ -127,7 +150,7 @@ class PcBuffer
         std::size_t result = state.data_available();
         if (result)
         {
-            pop_n_impl(elem_array, result);
+            result = ToBool(pop_n_impl(elem_array, result)) ? result : 0;
         }
         return result;
     }
@@ -139,11 +162,18 @@ class PcBuffer
             service_data();
         }
 
-        auto result = state.increment_data(drop);
+        bool result;
+        {
+            Lock lock;
+            result = state.increment_data(drop);
+            if (result)
+            {
+                buffer.write_single(elem);
+            }
+        }
 
         if (result)
         {
-            buffer.write_single(elem);
             service_data();
         }
 
@@ -175,10 +205,18 @@ class PcBuffer
             service_data();
         }
 
-        auto result = state.increment_data(drop, count);
+        bool result;
+        {
+            Lock lock;
+            result = state.increment_data(drop, count);
+            if (result)
+            {
+                buffer.write_n(elem_array, count);
+            }
+        }
+
         if (result)
         {
-            buffer.write_n(elem_array, count);
             service_data();
         }
 
@@ -191,7 +229,7 @@ class PcBuffer
 
         if (count)
         {
-            push_n_impl(elem_array, count);
+            count = ToBool(push_n_impl(elem_array, count)) ? count : 0;
         }
 
         return count;
@@ -209,9 +247,11 @@ class PcBuffer
                 service_data(true);
             }
 
-            push_n_impl(elem_array, chunk);
-            elem_array += chunk;
-            count -= chunk;
+            if (ToBool(push_n_impl(elem_array, chunk)))
+            {
+                elem_array += chunk;
+                count -= chunk;
+            }
         }
     }
 
@@ -254,22 +294,25 @@ class PcBuffer
 };
 
 /* Convenient aliases. */
-template <std::size_t depth, std::size_t alignment = sizeof(std::byte)>
-using ByteBuffer = PcBuffer<depth, std::byte, alignment>;
-template <std::size_t depth, std::size_t alignment = sizeof(char)>
-using CharBuffer = PcBuffer<depth, char, alignment>;
-template <std::size_t depth, std::size_t alignment = sizeof(wchar_t)>
-using WcharBuffer = PcBuffer<depth, wchar_t, alignment>;
+template <std::size_t depth, std::size_t alignment = sizeof(std::byte),
+          class Lock = NoopLock>
+using ByteBuffer = PcBuffer<depth, std::byte, alignment, Lock>;
+template <std::size_t depth, std::size_t alignment = sizeof(char),
+          class Lock = NoopLock>
+using CharBuffer = PcBuffer<depth, char, alignment, Lock>;
+template <std::size_t depth, std::size_t alignment = sizeof(wchar_t),
+          class Lock = NoopLock>
+using WcharBuffer = PcBuffer<depth, wchar_t, alignment, Lock>;
 
 /*
  * Stream interfaces.
  */
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = sizeof(element_t)>
+          std::size_t alignment = sizeof(element_t), class Lock = NoopLock>
 inline std::basic_istream<element_t> &operator>>(
     std::basic_istream<element_t> &stream,
-    PcBuffer<depth, element_t, alignment> &instance)
+    PcBuffer<depth, element_t, alignment, Lock> &instance)
 {
     std::array<element_t, depth> elem_array;
     instance.push_n_blocking(elem_array.data(),
@@ -278,10 +321,10 @@ inline std::basic_istream<element_t> &operator>>(
 }
 
 template <std::size_t depth, typename element_t = std::byte,
-          std::size_t alignment = sizeof(element_t)>
+          std::size_t alignment = sizeof(element_t), class Lock = NoopLock>
 inline std::basic_ostream<element_t> &operator<<(
     std::basic_ostream<element_t> &stream,
-    PcBuffer<depth, element_t, alignment> &instance)
+    PcBuffer<depth, element_t, alignment, Lock> &instance)
 {
     std::array<element_t, depth> elem_array;
     stream.write(elem_array.data(), instance.try_pop_n(elem_array));

@@ -30,7 +30,7 @@ class StringCommandProcessor
                            bool auto_poll = false,
                            element_t _line_delim = default_line_delim,
                            element_t _word_delim = default_word_delim)
-        : input(_input), handler(_handler), line_delim(_line_delim),
+        : handler(_handler), input(_input), line_delim(_line_delim),
           word_delim(_word_delim)
     {
         reset();
@@ -145,9 +145,10 @@ class StringCommandProcessor
         }
     }
 
+    Handler handler;
+
   protected:
     Buffer &input;
-    Handler handler;
 
     /* Line parsing. */
     element_t line_delim;
