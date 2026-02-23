@@ -64,6 +64,7 @@ jobs:
 
       - run: mk t variant=clang coverage=false
       - run: ninja all format-check
+      - run: pip${{matrix.python-version}} install -e git+https://github.com/renefritze/exhale.git@feat/cpp-concepts#egg=exhale
       - run: mk docs
       - run: mk dist
         if: github.ref_name != 'master'
