@@ -7,7 +7,7 @@ ifgen>=4.7.3
 sphinx
 sphinx-book-theme
 breathe
-exhale
+git+https://github.com/renefritze/exhale.git@feat/cpp-concepts#egg=exhale
 myst-parser
 
 # Linting and QA.
