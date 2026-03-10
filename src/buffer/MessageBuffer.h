@@ -11,7 +11,7 @@
 namespace Coral
 {
 
-template <std::size_t depth, std::size_t max_messages,
+template <std::size_t depth, std::size_t max_messages = 1,
           byte_size element_t = std::byte,
           std::size_t alignment = sizeof(element_t)>
 class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
