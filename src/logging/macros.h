@@ -10,6 +10,7 @@
 
 /* toolchain */
 #include <cerrno>
+#include <cstdlib>
 #include <cstring>
 
 #ifndef CORAL_LOGGER
@@ -149,5 +150,25 @@
         CORAL_LOGGER.log("%s:%d LogReturnValIfNot(" #x ", " #val ")\n",       \
                          __FILE__, __LINE__);                                 \
         return val;                                                           \
+    }
+#endif
+
+#ifndef LogExitIf
+#define LogExitIf(x, val)                                                     \
+    if (x)                                                                    \
+    {                                                                         \
+        CORAL_LOGGER.log("%s:%d LogExitIf(" #x ", " #val ")\n", __FILE__,     \
+                         __LINE__);                                           \
+        std::exit(val);                                                       \
+    }
+#endif
+
+#ifndef LogExitIfNot
+#define LogExitIfNot(x, val)                                                  \
+    if (not(x))                                                               \
+    {                                                                         \
+        CORAL_LOGGER.log("%s:%d LogExitIfNot(" #x ", " #val ")\n", __FILE__,  \
+                         __LINE__);                                           \
+        std::exit(val);                                                       \
     }
 #endif
