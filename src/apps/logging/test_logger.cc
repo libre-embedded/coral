@@ -125,5 +125,8 @@ int main(void)
     assert(test_result());
 
     CORAL_LOGGER.log("Nominal exit.\n");
-    return 0;
+
+    LogExitIf(true, 0);
+
+    return 1;
 }
