@@ -119,6 +119,8 @@ int main(void)
     stderr_logger().log("Hello, world! %d\n", 2);
     stderr_logger().log("Hello, world! %d\n", 3);
 
+    stderr_logger().flush = true;
+
     LogErrno;
 
     test_logging();
