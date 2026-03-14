@@ -21,7 +21,10 @@ class PrintfLogger : public LogInterface<PrintfLogger>
   public:
     void vlog_impl(const char *fmt, va_list args)
     {
-        vprintf(fmt, args);
+        if (vprintf(fmt, args) > 0 and flush)
+        {
+            fflush(stdout);
+        }
     }
 };
 
@@ -42,7 +45,10 @@ class FdPrintfLogger : public LogInterface<FdPrintfLogger>
         n = vsnprintf(buf, n, fmt, args);
         if (n > 0)
         {
-            assert(write(fd, buf, n) > 0);
+            if (write(fd, buf, n) > 0 and flush)
+            {
+                fsync(fd);
+            }
         }
     }
 

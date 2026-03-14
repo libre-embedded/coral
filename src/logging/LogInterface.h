@@ -25,6 +25,8 @@ template <class T> class LogInterface
     {
         static_cast<T *>(this)->vlog_impl(fmt, args);
     }
+
+    bool flush = false;
 };
 
 template <class T> class HasLogInterface
