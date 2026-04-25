@@ -5,6 +5,7 @@
 #pragma once
 
 /* internal */
+#include "../logging/LogInterface.h"
 #include "../result.h"
 #include "CircularBuffer.h"
 
@@ -17,7 +18,7 @@ template <std::size_t depth, std::size_t max_messages = 1,
 class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
 {
   public:
-    class MessageContext
+    class MessageContext : public Coral::LogInterface<MessageContext>
     {
       public:
         MessageContext(MessageBuffer *_buf) : max(_buf->space()), buf(_buf)
@@ -47,21 +48,33 @@ class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
         }
 
         template <std::endian endianness, std::integral T>
+        inline std::size_t custom_header(void)
+        {
+            return buf->template write<endianness>(T());
+        }
+
+        template <std::endian endianness, std::integral T>
         inline std::size_t custom(const element_t *elem, std::size_t length)
         {
-            std::size_t result = 0;
-            result += buf->template write<endianness>(T());
-            result += buf->write_n(elem, length);
-            return result;
+            std::size_t result = custom_header<endianness, T>();
+            return result + buf->write_n(elem, length);
         }
 
         template <std::endian endianness, ifgen_struct T>
         inline std::size_t point(const T *elem)
         {
-            std::size_t result = 0;
-            result += buf->template write<endianness>(T::id);
-            result += buf->template write<endianness>(elem);
-            return result;
+            std::size_t result = buf->template write<endianness>(T::id);
+            return result + buf->template write<endianness>(elem);
+        }
+
+        void vlog_impl(const char *fmt, va_list args)
+        {
+            char stack_buffer[BUFSIZ];
+            auto n = vsnprintf(stack_buffer, sizeof stack_buffer, fmt, args);
+            if (n > 0)
+            {
+                buf->write_n(stack_buffer, n);
+            }
         }
 
         const std::size_t max;
