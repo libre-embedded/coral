@@ -118,6 +118,14 @@ class MessageBuffer : public CircularBuffer<depth, element_t, alignment>
         return ToResult(result);
     }
 
+    template <std::endian endianness, ifgen_struct T>
+    inline Result point(const T *elem)
+    {
+        auto curr_messages = num_messages;
+        context().template point<endianness>(elem);
+        return ToResult(curr_messages != num_messages);
+    }
+
     Result get_message(element_t *data, std::size_t &len)
     {
         bool result = not locked and not empty();
