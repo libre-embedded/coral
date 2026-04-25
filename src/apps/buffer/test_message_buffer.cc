@@ -139,16 +139,18 @@ int main(void)
 
     assert(not msg_buf.get_message(buf.data(), len));
 
+    Coral::BufferState state = {};
     {
         auto ctx = msg_buf.context();
-        Coral::BufferState state = {};
         state.write_cursor = 256;
         state.read_cursor = 65536;
         state.read_count = 3;
         state.write_count = 4;
         ctx.point<std::endian::native>(&state);
     }
+    assert(msg_buf.get_message(buf.data(), len));
 
+    msg_buf.point<std::endian::native>(&state);
     assert(msg_buf.get_message(buf.data(), len));
 
     circ_buf.reset();
@@ -158,7 +160,7 @@ int main(void)
         circ_buf.read<default_endian, decltype(Coral::BufferState::id)>();
     assert(id == Coral::BufferState::id);
 
-    Coral::BufferState state = {};
+    state = {};
     circ_buf.read<default_endian>(&state);
     assert(state.write_cursor == 256);
     assert(state.read_cursor == 65536);
