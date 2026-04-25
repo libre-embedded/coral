@@ -165,12 +165,22 @@ int main(void)
     assert(state.read_count == 3);
     assert(state.write_count == 4);
 
+    /* Basic logging example. */
     msg_buf.clear();
     {
         auto ctx = msg_buf.context();
         ctx.log("Hello, world! %d %s\n", 5, "test");
     }
     assert(not msg_buf.empty());
+
+    /* Buffer too small. */
+    MessageBuffer<8, 1, char> msg_buf2;
+    msg_buf2.clear();
+    {
+        auto ctx = msg_buf2.context();
+        ctx.log("Hello, world! %d %s\n", 5, "test");
+    }
+    assert(msg_buf2.empty());
 
     return 0;
 }
